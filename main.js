@@ -1,118 +1,138 @@
-/* 
-Json stringify --> array to json
-Json.parse --> json to array  */
+// Initialize the screenshot and cropping functionality
+const initializeScreenshotCropper = () => {
+  chrome.runtime.sendMessage({ type: "requestScreenshot" }, (response) => {
+    createImgNode(response.screenshotImage);
+    initializeCropper();
+    setupCloseAndResizeHandlers();
+    setupOCRButton();
+    initializeLanguageSettings();
+  });
+};
 
-
-
-function createImgNode(src) {
-  var imageNode = document.createElement("img");
+// Create an image node dynamically
+const createImgNode = (src) => {
+  const imageNode = document.createElement("img");
   imageNode.id = "image";
   imageNode.src = src;
-  var textArea = document.getElementById("convertText");
+  const textArea = document.getElementById("convertText");
   document.body.insertBefore(imageNode, textArea);
-}
-/* This is used to display the screenshot or image that will be cropped. */
+};
+
+// Initialize the cropper functionality
+const initializeCropper = () => {
+
+/*   const image = document.querySelector('#image'); // will search for css and id too  */
+const image = document.getElementById('image');
 
 
-
-window.addEventListener('DOMContentLoaded', function () {
-  chrome.runtime.sendMessage({ type: "requestScreenshot" }, function (response) {  // sends request for background to take screenshot
-    createImgNode(response.screenshotImage);       // createImgNode function used to create an image node..
-    var image = document.querySelector('#image');
-
-
-    var cropper = new Cropper(image, {
-      autoCrop: false,
-      toggleDragModeOnDblclick: false,
-      moveable: false,
-      viewMode: 3,                                    // no zooming and other movement
-      cropstart: function (e) {
-        console.log("START", e)
-      },
-      cropmove: function (e) {
-        document.getElementById("overlay").setAttribute("hidden", "");
-        cropBox = document.getElementsByClassName("cropper-crop-box")[0];
-        cropBoxDim = cropBox.getBoundingClientRect();
-        button = document.getElementById("convertText");
-        button.removeAttribute("hidden")
-        button.style = `top: ${cropBoxDim.top - button.clientHeight < 0 ? 0 : cropBoxDim.top - button.clientHeight}px;left:${cropBoxDim.left}px;`
-      }
-    });
-
-
-    document.getElementById("close").onclick = () => {
-      cropper.clear();
-      document.getElementById("overlay").removeAttribute("hidden");
-      document.getElementById("convertText").setAttribute("hidden", "")
-    }
-    window.onresize = function (event) {
-      cropper.reset();
-    };
-
-    var button = document.querySelector("#getText");
-    button.onclick = function () {
-      var crop_image = cropper.getCroppedCanvas().toDataURL('image/jpeg');
-      document.getElementById("loading").removeAttribute("hidden");
-      document.getElementById("getText").setAttribute("hidden", "");
-      // Send image to sandbox to process
-      iframe.contentWindow.postMessage({ type: "imageProcessing", image: crop_image, lang: window.localStorage.getItem("lang") }, "*");
-    };
-    if (window.localStorage.getItem("lang") == null) {
-      window.localStorage.setItem("lang", "eng");
-    }
-    var lang = document.getElementById("lang");
-    lang.innerText = window.localStorage.getItem("lang").toUpperCase();
-    lang.onclick = function () {
-      if (lang.innerText == "ENG") {
-        window.localStorage.setItem("lang", "jpn")
-        lang.innerText = "JPN";
-      } else {
-        window.localStorage.setItem("lang", "eng")
-        lang.innerText = "ENG";
-      }
-    }
+  window.cropper = new Cropper(image, {
+    autoCrop: false,
+    toggleDragModeOnDblclick: false,
+    moveable: false,
+    viewMode: 3,
+    cropstart: handleCropStart,
+    cropmove: handleCropMove,
   });
-});
+};
 
+// Function to handle when cropping starts
+const handleCropStart = (e) => {
+  console.log("START", e);
+};
 
-// for storing in the browser
+// Function to handle crop movement
+const handleCropMove = (e) => {
+  document.getElementById("overlay").setAttribute("hidden", "");
+  const cropBox = document.getElementsByClassName("cropper-crop-box")[0];
+  const cropBoxDim = cropBox.getBoundingClientRect();
+  const button = document.getElementById("convertText");
+  button.removeAttribute("hidden");
+  button.style = `top: ${cropBoxDim.top - button.clientHeight < 0 ? 0 : cropBoxDim.top - button.clientHeight}px; left: ${cropBoxDim.left}px;`;
+};
 
-window.addEventListener('message', function (event) {
-  
-  // Retrieve existing OCR_TEXT from local storage
-  if (event.data.type == "processedText") {
-    item = JSON.parse(localStorage.getItem("OCR_TEXT"));  //converts the stored JSON string back into a JavaScript array.
-    if (item == null) {
-      item = []
-    }
+// Set up close button and window resize handler
+const setupCloseAndResizeHandlers = () => {
+  document.getElementById("close").onclick = () => {
+    window.cropper.clear();
+    document.getElementById("overlay").removeAttribute("hidden");
+    document.getElementById("convertText").setAttribute("hidden", "");
+  };
 
-    // Remove line breaks from the received text
-    const withoutLineBreaks = event.data.text.replace(/[\r\n]/gm, '');
-    if(!withoutLineBreaks){  // if its empty... leave it
-      return;
-    }
+  window.onresize = () => {
+    window.cropper.reset();
+  };
+};
 
-/* 
-Purpose: Adds withoutLineBreaks to the beginning of the item array. and older text below
- */
-    item.unshift(withoutLineBreaks);
-   /*  all the image text is stored under the key OCRTEXT */
-    localStorage.setItem("OCR_TEXT", JSON.stringify(item));
-    document.getElementById("getText").removeAttribute("hidden");
-    document.getElementById("loading").setAttribute("hidden", "");
-    alert(event.data.text);
+// Set up the OCR button that processes the cropped image
+const setupOCRButton = () => {
+  const button = document.querySelector("#getText");
+  button.onclick = () => {
+    const cropImage = window.cropper.getCroppedCanvas().toDataURL('image/jpeg');    //
+    processCroppedImage(cropImage);
+  };
+};
+
+// Process the cropped image and send it for OCR processing
+const processCroppedImage = (cropImage) => {
+  document.getElementById("loading").removeAttribute("hidden");
+  document.getElementById("getText").setAttribute("hidden", "");
+  iframe.contentWindow.postMessage({ type: "imageProcessing", image: cropImage, lang: getLanguageSetting() }, "*");
+};
+
+// Initialize the language settings (ENG/JPN)
+const initializeLanguageSettings = () => {
+  if (!window.localStorage.getItem("lang")) {
+    window.localStorage.setItem("lang", "eng");
   }
 
+  const lang = document.getElementById("lang");
+  lang.innerText = window.localStorage.getItem("lang").toUpperCase();
+  lang.onclick = toggleLanguage;
+};
 
-//This type indicates that some processing OCR or image processing is finished.
-  if (event.data.type == "stopped") {
-    document.getElementById("getText").removeAttribute("hidden"); // Now the get text is made visible
-    document.getElementById("loading").setAttribute("hidden", ""); // and loading is invisible
+// Toggle language setting between English and Japanese
+const toggleLanguage = () => {
+  const lang = document.getElementById("lang");
+  if (lang.innerText === "ENG") {
+    window.localStorage.setItem("lang", "jpn");
+    lang.innerText = "JPN";
+  } else {
+    window.localStorage.setItem("lang", "eng");
+    lang.innerText = "ENG";
   }
+};
 
-});
+// Get the current language setting from localStorage
+const getLanguageSetting = () => window.localStorage.getItem("lang");
 
-/* The script integrates a cropping tool and OCR processing functionality within a Chrome extension's popup or content page.
-It manages user interactions for cropping and processing images, 
-handles language settings, and communicates with background scripts and iframes 
-to perform OCR and update the UI accordingly. */
+// Handle post messages, including processed OCR text
+const handlePostMessage = (event) => {
+  if (event.data.type === "processedText") {
+    storeProcessedText(event.data.text);
+  } else if (event.data.type === "stopped") {
+    toggleLoadingAndGetTextButtons(false);
+  }
+};
+
+// Store the processed text into localStorage and update the UI
+const storeProcessedText = (text) => {
+  let item = JSON.parse(localStorage.getItem("OCR_TEXT")) || [];
+  const withoutLineBreaks = text.replace(/[\r\n]/gm, '');
+
+  if (!withoutLineBreaks) return;
+
+  item.unshift(withoutLineBreaks);
+  localStorage.setItem("OCR_TEXT", JSON.stringify(item));
+  toggleLoadingAndGetTextButtons(true);
+  alert(text);
+};
+
+// Toggle visibility of the loading and get text buttons
+const toggleLoadingAndGetTextButtons = (showGetText) => {
+  document.getElementById("getText").removeAttribute(showGetText ? "hidden" : "hidden");
+  document.getElementById("loading").setAttribute(showGetText ? "hidden" : "", "");
+};
+
+// Initialize and use all functions
+window.addEventListener('DOMContentLoaded', initializeScreenshotCropper);
+window.addEventListener('message', handlePostMessage);
