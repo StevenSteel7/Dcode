@@ -1,34 +1,12 @@
 <html>
 
 <head>
-  <style>
-    html {
-      width: 640px;
-      padding: 20px;
-    }
-    .remove{
-      position: absolute;
-      z-index: 2;
-      right: 20px;
-      height:20px;
-      border-radius: 20px;
-      padding: 0px 5px 0px 5px !important;
-      border-color: white;
-      background-color: red;
-      opacity: 0.8;
-      color: white;
-      font-size: 10px !important;
-    }
-    .remove:hover{
-      opacity: 1;
-    }
-  </style>
-  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+ <link href="./style.css" rel="stylesheet">
 </head>
 
 <body>
   <button id="take_screenshot" type="button" class="btn btn-lg btn-success mt-2, mb-2">Take Screenshot</button>
-  <div class="input-group mb-3">
+  <div class="input-group">
     <input type="text" id="searchInput" class="form-control" placeholder="Search Text" aria-label="Search Text"
       aria-describedby="search">
   </div>
@@ -36,7 +14,7 @@
   </div>
 
   <script src="popup.js"></script>     <!-- So that popup can get all its elements by getid -->
-  <script src="bootstrap/js/bootstrap.bundle.min.js" rel="stylesheet"></script>
+  
 </body>
 
 </html>

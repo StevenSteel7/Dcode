@@ -25,12 +25,6 @@ window.addEventListener("message", async (event) => {
 
 
 
-
-/* const { createWorker } = require('tesseract.js');
-This imports the createWorker function from the Tesseract.js library, which is used to create a worker for running the OCR process.
- */
-
-
 /* Summary:
 The code listens for messages.
 When a message with the type "imageProcessing" is received, it processes the image using Tesseract.js to extract text.
