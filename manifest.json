@@ -1,8 +1,8 @@
 ﻿{
-  "name": "OCR Screenshot",
+  "name": "DCode",
   "version": "1.0",
   "manifest_version": 3,
-  "description": "OCR Screenshot for image to text recognition",
+  "description": "A helper For student to enojoy Studies",
 	"icons": {
 		"128": "img/icon.png"
 	},
