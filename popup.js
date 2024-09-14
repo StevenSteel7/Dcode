@@ -24,7 +24,7 @@ function renderListItem(note, index) {
   };
   a.innerText = note;
 
-  removeBtn.setAttribute("class", "remove btn btn-danger btn-sm");
+  removeBtn.setAttribute("class", "remove");
   removeBtn.setAttribute("index", index);
   removeBtn.innerText = "remove";
   removeBtn.onclick = () => removeListItem(index);
@@ -49,9 +49,9 @@ function renderList(notes) {
   header.innerText = "Text From OCR";
 
   removeBtn.setAttribute("style", "position: absolute; right: 22px; margin-top: 2px; z-index: 3;");
-  removeBtn.setAttribute("class", "btn btn-danger");
+  removeBtn.setAttribute("class", "");
   removeBtn.innerText = "Clear";
-  removeBtn.onclick = () => {
+  removeBtn.onclick = () => {    // when remove button is clicked
     window.localStorage.removeItem("OCR_TEXT");
     notes = [];
     renderList(notes);

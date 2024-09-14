@@ -1,20 +1,74 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
- <link href="./style.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR Screenshot Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card-container">
+
+    <div class="card">
+      <h3>OCR Screenshot Tool</h3>
+      <div id="ocr_result"></div>
+      <button id="take_screenshot" type="button" class="btn  ">Take Screenshot</button>
+      <div class="input-group">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search Text" aria-label="Search Text" aria-describedby="search">
+      
+      <div class = "list-items">
+
+      <div id="list-group"></div>  
+
+      </div>
+    
+    
+    </div>
+    
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DCode</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-  <button id="take_screenshot" type="button" class="btn btn-lg btn-success mt-2, mb-2">Take Screenshot</button>
-  <div class="input-group">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search Text" aria-label="Search Text"
-      aria-describedby="search">
-  </div>
-  <div id="list-group">    
-  </div>
 
-  <script src="popup.js"></script>     <!-- So that popup can get all its elements by getid -->
-  
+<body>  
+  <div class = "card-container"> 
+    <div class="card">                                    
+      <button id="take_screenshot" type="button" class="btn ">Take Screenshot</button>
+      <div class="input-group">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search Text" aria-label="Search Text" aria-describedby="search">
+      <div id="list-group"></div>    
+    </div>        
+  </div>
+ 
+  </div>
+  <script src="popup.js"></script>    
 </body>
 
 </html>
+ -->
